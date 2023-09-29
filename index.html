@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <ul class="nav text-bg-dark " >
+      <li class="nav-item"><a class="nav-link text-light fw-bold" href="/">Home</a></li>
+      <li class="nav-item"><a class="nav-link text-light fw-bold"  href="/add-product.html">Add Products</a></li>
+      <li class="nav-item"><a class="nav-link text-light fw-bold"  href="/products.html">Products</a></li>
+    </ul>
+    <div class="border border-2 row rounded-3 shadow-sm my-3 mx-auto col-9 m-5">
+      <div class="col-8 p-3">
+        <div>
+          <input
+            type="text"
+            id="firstname"
+            class="form-control mb-3"
+            placeholder="First Name"
+          />
+          <input
+            type="text"
+            id="lastname"
+            class="form-control mb-3"
+            placeholder="Last Name"
+          />
+          <input
+            type="date"
+            id="dob"
+            class="form-control mb-3"
+            placeholder="Date of Birth "
+          />
+          <input
+            type="email"
+            id="email"
+            class="form-control mb-3"
+            placeholder="Email"
+          />
+          <input
+            type="text"
+            id="password"
+            class="form-control mb-3"
+            placeholder="Password"
+          />
+          <button
+            id="signUpButton"
+            class="btn btn-info form-control rounded-pill"
+          >
+            Sign Up
+          </button>
+
+          <button
+            id="googleButton"
+            class="btn btn-outline-dark rounded-pill my-4 form-control"
+          >
+            <img src="./google.png" width="25px" class="me-2" alt="" /> Sign up
+            With Google
+          </button>
+        </div>
+      </div>
+      <div class="col-4 bg-info p-4">
+        <h3 class="text-light">Sign Up</h3>
+      </div>
+    </div>
+    <div class="border border-2 row rounded-3 shadow-sm my-3 mx-auto col-9 m-5">
+      <div class="col-8 p-3">
+        <div id="message" class=""></div>
+        <div>
+          <input
+            type="email"
+            id="signInEmail"
+            class="form-control mb-3"
+            placeholder="Email"
+          />
+          <input
+            type="text"
+            id="signInPassword"
+            class="form-control mb-3"
+            placeholder="Password"
+          />
+          <button id="signInButton" class="btn btn-primary form-control">
+            Sign In
+          </button>
+        </div>
+      </div>
+      <div class="col-4 bg-primary p-4">
+        <h3 class="text-light">Sign In</h3>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+      //-----------
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        GoogleAuthProvider,
+        signInWithPopup,
+      } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+      //----------
+      import {
+        getDatabase,
+        ref,
+        set,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAX26tBnmddkFfH-0pTVK054CHMlmt5Tjg",
+        authDomain: "class-july.firebaseapp.com",
+        projectId: "class-july",
+        storageBucket: "class-july.appspot.com",
+        messagingSenderId: "355340913277",
+        appId: "1:355340913277:web:c73b07da448b5c3a0fff14",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const database = getDatabase(app);
+      const provider = new GoogleAuthProvider(app);
+
+      const userRef = ref(database, "users");
+      let index;
+      onValue(userRef, function (snapshot) {
+        const data = snapshot.val();
+        console.log(data);
+        if (data) {
+          index = data.length;
+        } else {
+          index = 0;
+        }
+      });
+
+      document
+        .getElementById("signUpButton")
+        .addEventListener("click", function () {
+          let email = document.getElementById("email").value;
+          let password = document.getElementById("password").value;
+          let firstname = document.getElementById("firstname").value;
+          let lastname = document.getElementById("lastname").value;
+          let dob = document.getElementById("dob").value;
+
+          let userObj = { email, firstname, lastname, dob };
+
+          // localStorage.setItem("customer", )
+
+          set(ref(database, `users/${index}`), userObj);
+          createUserWithEmailAndPassword(auth, email, password)
+            .then((response) => {
+              // console.log(response);
+              alert("Welcome Egbon " + firstname);
+            })
+            .catch((err) => console.log(err, "there was an error"));
+        });
+
+      document
+        .getElementById("signInButton")
+        .addEventListener("click", function () {
+          let email = document.getElementById("signInEmail").value;
+          let password = document.getElementById("signInPassword").value;
+
+          signInWithEmailAndPassword(auth, email, password)
+            .then((credentials) => {
+              console.log(credentials);
+              alert("User Signed In successfully");
+            })
+            .catch((err) => {
+              // console.log(err)
+              document.getElementById(
+                "message"
+              ).innerHTML = `<div class="alert alert-primary" id="alert">There was an error ${err.message}  <button class= 'btn-close' data-bs-target="#alert" data-bs-dismiss="alert"/> </div> `;
+            });
+        });
+
+      document
+        .getElementById("googleButton")
+        .addEventListener("click", function () {
+          signInWithPopup(auth, provider).then((credential)=>{
+            console.log (credential)
+            let email = credential.user.email
+            let name = credential.user.displayName
+            let firstname = name.split(" ")[1]
+            let lastname = name.split(" ")[0]
+
+             let userObj = { email, firstname, lastname};
+
+
+          set(ref(database, `users/${index}`), userObj);
+          }).catch(err=>{
+            console.log(err)
+          })
+
+        });
+    </script>
+  </body>
+</html>
